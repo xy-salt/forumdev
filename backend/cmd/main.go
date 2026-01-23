@@ -2,18 +2,28 @@ package main
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/xy-salt/forumdev/backend/internal/config"
+	"github.com/xy-salt/forumdev/backend/internal/database"
 	"github.com/xy-salt/forumdev/backend/internal/server"
 )
 
 func main() {
-	srv := server.NewServer()
+	if config.Envs.DBName == "" || config.Envs.DBPassword == "" {
+		log.Fatal("set db username and password in .env file")
+	}
+	db := database.DatabaseConn(
+		fmt.Sprintf("%s:%s@tcp(db:3306)/%s?parseTime=true",
+			config.Envs.DBUser,
+			config.Envs.DBPassword,
+			config.Envs.DBName,
+		),
+	)
 
-	fmt.Printf("Listening on port %s at http://localhost:%s!", config.Envs.Port, config.Envs.Port)
-
-	err := srv.ListenAndServe()
-	if err != nil {
-		fmt.Println(fmt.Errorf("failed to start server: %w", err))
+	defer db.Close()
+	server := server.NewServer(":8000", db)
+	if err := server.Run(); err != nil {
+		log.Fatal(err)
 	}
 }
