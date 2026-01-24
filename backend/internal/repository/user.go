@@ -2,6 +2,7 @@ package repository
 
 import (
 	"database/sql"
+	"errors"
 
 	"github.com/xy-salt/forumdev/backend/internal/model"
 )
@@ -29,7 +30,8 @@ func (repo *UserRepo) AllUsers() ([]model.UserResponse, error) {
 		SELECT 
 			user_id,
 			username
-		FROM Users`,
+		FROM Users
+		WHERE is_deleted = 0`,
 	)
 	if err != nil {
 		return nil, err
@@ -54,14 +56,23 @@ func (repo *UserRepo) AllUsers() ([]model.UserResponse, error) {
 
 func (repo *UserRepo) GetUserByID(userID uint64) (*model.UserResponse, error) {
 	var user model.UserResponse
+	var isDeleted bool
 	err := repo.db.QueryRow(`
-		SELECT username, created_at
+		SELECT username, created_at, is_deleted
 		FROM Users
 		WHERE user_id = ?`,
 		userID,
-	).Scan(&user.Username, &user.CreatedAt)
+	).Scan(
+		&user.Username,
+		&user.CreatedAt,
+		&isDeleted,
+	)
 	if err != nil {
 		return nil, err
+	}
+
+	if isDeleted {
+		return nil, errors.New("user not found")
 	}
 
 	rows, err := repo.db.Query(`
@@ -118,7 +129,7 @@ func (repo *UserRepo) GetUserByName(username string) (*model.User, error) {
 	}
 
 	if user.IsDeleted {
-		return nil, err
+		return nil, errors.New("error")
 	}
 
 	return &user, nil
@@ -127,18 +138,13 @@ func (repo *UserRepo) GetUserByName(username string) (*model.User, error) {
 func (repo *UserRepo) UpdateUser(user *model.User) error {
 	_, err := repo.db.Exec(`
 		UPDATE Users
-		SET username = 
-				CASE 
-					WHEN ? = "" THEN username
-					ELSE ?
-				END,
+		SET username = ?, 
 			password = 
 				CASE
 					WHEN ? = "" THEN password
 					ELSE ?
 				END
 		WHERE user_id = ?`,
-		user.Username,
 		user.Username,
 		user.Password,
 		user.Password,

@@ -45,7 +45,7 @@ func (h *PostHandler) RegisterRouters(router *chi.Mux) {
 
 			router.Group(func(router chi.Router) {
 				router.Use(auth.AuthMiddleware)
-				router.Use(auth.RequireSameUser)
+				// router.Use(auth.RequireSameUser)
 				router.Put("/", h.UpdatePost)
 				router.Delete("/", h.DeletePost)
 
@@ -213,6 +213,10 @@ func (h *PostHandler) GetPost(w http.ResponseWriter, r *http.Request) {
 
 func (h *PostHandler) UpdatePost(w http.ResponseWriter, r *http.Request) {
 	r.Body = http.MaxBytesReader(w, r.Body, POSTPAYLOADLIMIT)
+	userID, ok := r.Context().Value(auth.UserKey).(uint64)
+	if !ok {
+		http.Error(w, "unauthorized", http.StatusUnauthorized)
+	}
 
 	idParam := chi.URLParam(r, "post_id")
 	postID, err := strconv.ParseUint(idParam, POSTBASE, POSTBITSIZE)
@@ -246,7 +250,7 @@ func (h *PostHandler) UpdatePost(w http.ResponseWriter, r *http.Request) {
 
 	post := &model.Post{
 		PostID:    postID,
-		CreatorID: postChangeReq.UserID,
+		CreatorID: userID,
 		Title:     title,
 		Content:   content,
 	}
@@ -254,6 +258,9 @@ func (h *PostHandler) UpdatePost(w http.ResponseWriter, r *http.Request) {
 	err = h.Repo.UpdatePost(post, isComment)
 	if err != nil {
 		log.Println("failed to update post", err)
+		if err.Error() == "unauthorized" {
+			http.Error(w, err.Error(), http.StatusUnauthorized)
+		}
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
@@ -268,6 +275,12 @@ func (h *PostHandler) UpdatePost(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *PostHandler) DeletePost(w http.ResponseWriter, r *http.Request) {
+	userID, ok := r.Context().Value(auth.UserKey).(uint64)
+	if !ok {
+		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		return
+	}
+
 	idParam := chi.URLParam(r, "post_id")
 	postID, err := strconv.ParseUint(idParam, POSTBASE, POSTBITSIZE)
 	if err != nil {
@@ -275,9 +288,13 @@ func (h *PostHandler) DeletePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = h.Repo.DeletePost(postID)
+	err = h.Repo.DeletePost(postID, userID)
 	if err != nil {
 		log.Println("failed to delete post", err)
+		if err.Error() == "Unauthorized" {
+			http.Error(w, err.Error(), http.StatusUnauthorized)
+			return
+		}
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}

@@ -3,6 +3,7 @@ package config
 import (
 	"crypto/rand"
 	"fmt"
+	"log"
 	"os"
 	"strconv"
 )
@@ -35,6 +36,7 @@ func getEnv(key, fallback string) string {
 	if key == "JWT_SECRET" {
 		bytes := make([]byte, 16)
 		rand.Read(bytes)
+		log.Printf("%x", bytes)
 
 		return fmt.Sprintf("%x", bytes)
 	}

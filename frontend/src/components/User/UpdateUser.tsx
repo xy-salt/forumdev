@@ -1,35 +1,44 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 
-const Login: React.FC = () => {
+interface UpdateUserProp {
+    onClose: () => void
+}
+
+const UpdateUser: React.FC<UpdateUserProp> = ({ onClose }) => {
     const [username, setUsername] = useState<string>("");
     const [password, setPassword] = useState<string>("");
     const [error, setError] = useState<string>("");
     const navigate = useNavigate();
+    const { user_id } = useParams<{ user_id: string }>();
+
+    const token = localStorage.getItem("token");
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setError("");
 
         try {
-            const res = await fetch(`${import.meta.env.VITE_API_URL}/login`, {
-                method: "POST",
-                headers: {"Content-Type": "application/json"},
+            const res = await fetch(`${import.meta.env.VITE_API_URL}/users/${user_id}`, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`,
+                },
                 body: JSON.stringify({ username, password }),
             });
 
             if (!res.ok) {
                 const text = await res.text();
-                throw new Error(text || "Login failed");
-            } else {
-                const data = await res.json();
-                localStorage.setItem("token", data.token);
-                navigate("/");
+                throw new Error(text || "Register failed");
             }
 
+            alert("user info updated");
+            navigate(`/users/${user_id}`);
+            onClose();
         } catch (err: any) {
             console.error(err);
-            setError(err.message || "Failed to login");
+            setError(err.message || "Failed to register");
             setPassword("");
         }
     };
@@ -54,11 +63,24 @@ const Login: React.FC = () => {
                 {error && <p style={{ color: "red" }}>{error}</p>}
 
                 <button type="submit">
-                    Login
+                    Update Account
                 </button>
             </form>
         </div>
     );
-};
+}
 
-export default Login;
+const UpdateUserButton: React.FC = () => {
+    const [show, setShow] = useState(false);
+    return (
+        <>
+            <button onClick={() => setShow(true)}>
+                Update User
+            </button>
+
+            {show && <UpdateUser onClose={() => setShow(false)} />}
+        </>
+    );
+}
+
+export default UpdateUserButton;

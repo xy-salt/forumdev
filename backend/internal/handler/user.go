@@ -39,7 +39,7 @@ func (h *UserHandler) RegisterRouters(router *chi.Mux) {
 			router.Get("/", h.UserProfile)
 			router.Group(func(router chi.Router) {
 				router.Use(auth.AuthMiddleware)
-				router.Use(auth.RequireSameUser)
+				// router.Use(auth.RequireSameUser)
 				router.Put("/", h.UpdateUser)
 				router.Delete("/", h.DeleteUser)
 			})
@@ -215,6 +215,10 @@ func (h *UserHandler) UserProfile(w http.ResponseWriter, r *http.Request) {
 	user, err := h.Repo.GetUserByID(userID)
 	if err != nil {
 		log.Println("failed to get user", err)
+		if err.Error() == "user not found" {
+			http.Error(w, err.Error(), http.StatusNotFound)
+			return
+		}
 		http.Error(w, "intenal error", http.StatusInternalServerError)
 		return
 	}
@@ -228,11 +232,17 @@ func (h *UserHandler) UserProfile(w http.ResponseWriter, r *http.Request) {
 
 func (h *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 	r.Body = http.MaxBytesReader(w, r.Body, USERPAYLOADLIMIT)
+	authUserID := r.Context().Value(auth.UserKey).(uint64)
 
 	idParam := chi.URLParam(r, "user_id")
 	userID, err := strconv.ParseUint(idParam, USERBASE, USERBITSIZE)
 	if err != nil {
 		http.Error(w, "invalid user id", http.StatusBadRequest)
+		return
+	}
+
+	if userID != authUserID {
+		http.Error(w, "unauthorized", http.StatusUnauthorized)
 		return
 	}
 
@@ -243,17 +253,15 @@ func (h *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user := &model.User{
-		UserID: userID,
+	err = checkUsername(userChangeReq.Username)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
 	}
 
-	if userChangeReq.Username != "" {
-		err := checkUsername(userChangeReq.Username)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			return
-		}
-		user.Username = userChangeReq.Username
+	user := &model.User{
+		UserID:   authUserID,
+		Username: userChangeReq.Username,
 	}
 
 	if userChangeReq.Password != "" {
@@ -292,10 +300,16 @@ func (h *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *UserHandler) DeleteUser(w http.ResponseWriter, r *http.Request) {
+	authUserID := r.Context().Value(auth.UserKey).(uint64)
 	idParam := chi.URLParam(r, "user_id")
 	userID, err := strconv.ParseUint(idParam, USERBASE, USERBITSIZE)
 	if err != nil {
 		http.Error(w, "invalid user id", http.StatusBadRequest)
+		return
+	}
+
+	if authUserID != userID {
+		http.Error(w, "unauthorized", http.StatusUnauthorized)
 		return
 	}
 

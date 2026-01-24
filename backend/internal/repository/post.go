@@ -2,6 +2,7 @@ package repository
 
 import (
 	"database/sql"
+	"errors"
 
 	"github.com/xy-salt/forumdev/backend/internal/model"
 )
@@ -119,7 +120,8 @@ func (repo *PostRepo) GetPost(topicID uint64, postID uint64) (*model.PostRespons
 			topic_name,
 			user_id,
 			username,
-			p.is_deleted
+			p.is_deleted,
+			t.creator_id
 		FROM Posts p
 		JOIN Users u ON p.creator_id = u.user_id
 		JOIN Topics t ON p.topic_id = t.topic_id
@@ -134,6 +136,7 @@ func (repo *PostRepo) GetPost(topicID uint64, postID uint64) (*model.PostRespons
 		&post.UserID,
 		&post.Username,
 		&post.IsDeleted,
+		&post.TopicCreatorID,
 	)
 	if err != nil {
 		return nil, err
@@ -179,34 +182,83 @@ func (repo *PostRepo) GetPost(topicID uint64, postID uint64) (*model.PostRespons
 }
 func (repo *PostRepo) UpdatePost(post *model.Post, isComment bool) error {
 	if isComment {
-		_, err := repo.db.Exec(`
+		result, err := repo.db.Exec(`
 			UPDATE Posts
 			SET content = ?
-			WHERE post_id = ?`,
+			WHERE post_id = ? 
+				AND creator_id = ?`,
 			post.Content,
 			post.PostID,
+			post.CreatorID,
 		)
-		return err
+
+		if err != nil {
+			return err
+		}
+
+		affected, err := result.RowsAffected()
+		if err != nil {
+			return err
+		}
+
+		if affected == 0 {
+			return errors.New("unauthorized")
+		}
+
+		return nil
+
 	} else {
-		_, err := repo.db.Exec(`
+		result, err := repo.db.Exec(`
 			UPDATE Posts
 			SET title = ?, content = ?
-			WHERE post_id = ?`,
+			WHERE post_id = ? 
+				AND creator_id = ?`,
 			post.Title,
 			post.Content,
 			post.PostID,
+			post.CreatorID,
 		)
-		return err
+
+		if err != nil {
+			return err
+		}
+
+		affected, err := result.RowsAffected()
+		if err != nil {
+			return err
+		}
+
+		if affected == 0 {
+			return errors.New("unauthorized")
+		}
+
+		return nil
 	}
+
 }
 
-func (repo *PostRepo) DeletePost(postID uint64) error {
-	_, err := repo.db.Exec(`
-		UPDATE Posts
-		SET is_deleted = 1,
-		WHERE post_id = ?`,
+func (repo *PostRepo) DeletePost(postID uint64, userID uint64) error {
+	result, err := repo.db.Exec(`
+	 	UPDATE Posts p
+		JOIN Topics t ON t.topic_id = p.topic_id
+		SET p.is_deleted = 1 
+		WHERE p.post_id = ?
+			AND (p.creator_id = ? OR t.creator_id = ?)`,
 		postID,
+		userID,
+		userID,
 	)
+
+	if err != nil {
+		return err
+	}
+
+	affected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	} else if affected == 0 {
+		return errors.New("Unauthorized")
+	}
 
 	return err
 }

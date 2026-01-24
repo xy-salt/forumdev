@@ -27,7 +27,7 @@ const CreateTopic: React.FC<CreateTopicProp> = ({ onClose }) => {
         e.preventDefault();
 
         try {
-            const res = await fetch(`${import.meta.env.VITE_API_URL}/topics/`, {
+            const res = await fetch(`${import.meta.env.VITE_API_URL}/topics`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -44,7 +44,7 @@ const CreateTopic: React.FC<CreateTopicProp> = ({ onClose }) => {
             setName("");
             setDescription("");
             onClose();
-            navigate("");
+            navigate("/topics");
         } catch (err: any) {
             console.error(err);
             setError(err.message || "topic creation failed");

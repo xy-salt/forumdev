@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
+import UpdateTopicButton from "./UpdateTopic";
+import getValidUserID from "../utils/Auth";
 
 const TopicDetails: React.FC = () => {
     interface Topic {
@@ -14,6 +16,7 @@ const TopicDetails: React.FC = () => {
     const [topic, setTopic] = useState<Topic | null>(null);
     const { topic_id } = useParams<{ topic_id: string }>();
     const navigate = useNavigate();
+    const location = useLocation();
 
     useEffect(() => {
         async function fetchTopic() {
@@ -27,7 +30,7 @@ const TopicDetails: React.FC = () => {
         }
 
         fetchTopic();
-    }, [topic_id]);
+    }, [location.key]);
 
     if (topic == null) {
         return (
@@ -37,10 +40,13 @@ const TopicDetails: React.FC = () => {
         );
     }
 
+    const authUserID = getValidUserID();
+
     return (
         <div>
             <h4>{topic.topic_name}</h4>
             <h5>{topic.description}</h5>
+            {authUserID == topic.user_id && <UpdateTopicButton />}
             <p>
                 created by{" "}
                     <Link to={`/users/${topic.user_id}`}>{ topic.username }</Link>{" "}

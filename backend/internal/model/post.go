@@ -27,7 +27,7 @@ type PostInterface interface {
 	TopicPosts(topicID uint64) ([]MainPostResponse, error)
 	GetPost(topicID uint64, postID uint64) (*PostResponse, error)
 	UpdatePost(post *Post, isComment bool) error
-	DeletePost(postID uint64) error
+	DeletePost(postID uint64, userID uint64) error
 }
 
 type PostRequest struct {
@@ -59,11 +59,12 @@ type MainPostResponse struct {
 }
 
 type PostResponse struct {
-	Title     string            `json:"title"`
-	Content   string            `json:"content"`
-	TopicName string            `json:"topic_name"`
-	UserID    uint64            `json:"user_id"`
-	Username  string            `json:"username"`
-	IsDeleted bool              `json:"is_deleted"`
-	Comments  []CommentResponse `json:"comments"`
+	Title          string            `json:"title"`
+	Content        string            `json:"content"`
+	TopicName      string            `json:"topic_name"`
+	TopicCreatorID uint64            `json:"topic_creator_id"`
+	UserID         uint64            `json:"user_id"`
+	Username       string            `json:"username"`
+	IsDeleted      bool              `json:"is_deleted"`
+	Comments       []CommentResponse `json:"comments"`
 }

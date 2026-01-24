@@ -2,6 +2,7 @@ package repository
 
 import (
 	"database/sql"
+	"errors"
 
 	"github.com/xy-salt/forumdev/backend/internal/model"
 )
@@ -92,12 +93,28 @@ func (repo *TopicRepo) GetTopicByID(topicID uint64) (*model.TopicResponse, error
 }
 
 func (repo *TopicRepo) UpdateTopic(topic *model.Topic) error {
-	_, err := repo.db.Exec(`
+	result, err := repo.db.Exec(`
 		UPDATE Topics
 		SET description = ?
-		WHERE topic_id = ?`,
+		WHERE topic_id = ? 
+			AND creator_id = ?`,
 		topic.Description,
 		topic.TopicID,
+		topic.UserID,
 	)
-	return err
+
+	if err != nil {
+		return err
+	}
+
+	affected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if affected == 0 {
+		return errors.New("unauthorized")
+	}
+
+	return nil
 }

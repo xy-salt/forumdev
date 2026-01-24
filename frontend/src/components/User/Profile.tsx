@@ -1,5 +1,8 @@
 import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useLocation, useParams } from "react-router-dom";
+import UpdateUserButton from "./UpdateUser";
+import DeleteUser from "./DeleteUser";
+import getValidUserID from "../utils/Auth";
 
 const Profile: React.FC = () => {
     interface UserProfile {
@@ -17,6 +20,7 @@ const Profile: React.FC = () => {
 
     const [user, setUser] = useState<UserProfile | null>(null);
     const { user_id } = useParams<{ user_id: string }>();
+    const location = useLocation();
     if (!user_id) {
         return (
             <div>
@@ -45,9 +49,9 @@ const Profile: React.FC = () => {
         }
 
         fetchProfile();
-    }, [user_id]);
+    }, [location.key]);
 
-    
+    const authUserID = getValidUserID();
 
     return user == null
         ? (
@@ -59,6 +63,8 @@ const Profile: React.FC = () => {
             <div>
                 <h4>{user.username}</h4>
                 <h5>{user.created_at}</h5>
+                {authUserID == userID && <UpdateUserButton />}
+                {authUserID == userID && <DeleteUser />}
                 {user.posts == null ? (
                     <h6>No post yet</h6>
                 ) : (
@@ -72,7 +78,7 @@ const Profile: React.FC = () => {
                     </ul>
                 )}
             </div>
-        )
+        );
 }
 
 export default Profile;

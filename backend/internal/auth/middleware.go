@@ -3,10 +3,8 @@ package auth
 import (
 	"context"
 	"net/http"
-	"strconv"
 	"strings"
 
-	"github.com/go-chi/chi/v5"
 	"github.com/golang-jwt/jwt/v5"
 )
 
@@ -59,48 +57,57 @@ func AuthMiddleware(next http.Handler) http.Handler {
 	})
 }
 
+//moved authorization logic to handler and repo layer for updates and deletes
+
 // only handles user update and delete
 // does not handle post updates
 // does not handler topic updates
-func RequireSameUser(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+// func RequireSameUser(next http.Handler) http.Handler {
+// 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
-		authUserID, ok := r.Context().Value(UserKey).(uint64)
-		if !ok {
-			http.Error(w, "unauthorized", http.StatusUnauthorized)
-			return
-		}
+// 		authUserID, ok := r.Context().Value(UserKey).(uint64)
+// 		if !ok {
+// 			http.Error(w, "unauthorized", http.StatusUnauthorized)
+// 			return
+// 		}
 
-		idParam := chi.URLParam(r, "user_id")
-		if idParam != "" {
-			targetUserID, err := strconv.ParseUint(idParam, 10, 64)
-			if err != nil {
-				http.Error(w, "invalid user id", http.StatusBadRequest)
-				return
-			}
+// 		idParam := chi.URLParam(r, "user_id")
+// 		if idParam != "" {
+// 			targetUserID, err := strconv.ParseUint(idParam, 10, 64)
+// 			if err != nil {
+// 				http.Error(w, "invalid user id", http.StatusBadRequest)
+// 				return
+// 			}
 
-			if authUserID != targetUserID {
-				http.Error(w, "forbidden", http.StatusForbidden)
-				return
-			}
+// 			if authUserID != targetUserID {
+// 				http.Error(w, "forbidden", http.StatusForbidden)
+// 				return
+// 			}
 
-			next.ServeHTTP(w, r)
-			return
-		}
+// 			next.ServeHTTP(w, r)
+// 			return
+// 		}
 
-		// idParam = chi.URLParam(r, "topic_id")
-		// if idParam != "" {
-		// 	topicID, err := strconv.ParseUint(idParam, 10, 64)
-		// 	if err != nil {
-		// 		http.Error(w, "invalid topic id", http.StatusBadRequest)
-		// 		return
-		// 	}
+// 		idParam = chi.URLParam(r, "post_id")
+// 		if idParam != "" {
+// 			postID, err := strconv.ParseUint(idParam, 10, 64)
+// 			if err != nil {
+// 				http.Error(w, "invalid post id", http.StatusBadRequest)
+// 				return
+// 			}
+// 		}
 
-		// 	creatorID, err :=
-		// }
+// 		idParam = chi.URLParam(r, "topic_id")
+// 		if idParam != "" {
+// 			topicID, err := strconv.ParseUint(idParam, 10, 64)
+// 			if err != nil {
+// 				http.Error(w, "invalid topic id", http.StatusBadRequest)
+// 				return
+// 			}
+// 		}
 
-	})
-}
+// 	})
+// }
 
 // func RequireModerator(next http.Handler) http.Handler {
 // 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

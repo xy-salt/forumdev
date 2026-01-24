@@ -45,7 +45,7 @@ const CreatePost: React.FC<CreatePostProp> = ({ onClose }) => {
             setTitle("");
             setContent("");
             onClose();
-            navigate("");
+            navigate(`/topics/${topic_id}/posts`);
         } catch (err: any) {
             console.error(err);
             setError(err.message || "post creation failed");

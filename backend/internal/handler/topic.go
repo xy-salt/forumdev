@@ -60,7 +60,7 @@ func (h *TopicHandler) RegisterRouters(router *chi.Mux) {
 			router.Get("/", h.TopicDetails)
 			router.Group(func(router chi.Router) {
 				router.Use(auth.AuthMiddleware)
-				router.Use(auth.RequireSameUser)
+				// router.Use(auth.RequireSameUser)
 				router.Put("/", h.UpdateTopic)
 			})
 		})
@@ -151,6 +151,11 @@ func (h *TopicHandler) TopicDetails(w http.ResponseWriter, r *http.Request) {
 
 func (h *TopicHandler) UpdateTopic(w http.ResponseWriter, r *http.Request) {
 	r.Body = http.MaxBytesReader(w, r.Body, TOPICPAYLOADLIMIT)
+	userID, ok := r.Context().Value(auth.UserKey).(uint64)
+	if !ok {
+		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		return
+	}
 
 	idParam := chi.URLParam(r, "topic_id")
 	topicID, err := strconv.ParseUint(idParam, TOPICBASE, TOPICBITSIZE)
@@ -167,6 +172,7 @@ func (h *TopicHandler) UpdateTopic(w http.ResponseWriter, r *http.Request) {
 	}
 
 	topic := &model.Topic{
+		UserID:      userID,
 		TopicID:     topicID,
 		Description: topicReq.Description,
 	}
@@ -174,6 +180,10 @@ func (h *TopicHandler) UpdateTopic(w http.ResponseWriter, r *http.Request) {
 	err = h.Repo.UpdateTopic(topic)
 	if err != nil {
 		log.Println("failed to update topic", err)
+		if err.Error() == "unauthorized" {
+			http.Error(w, err.Error(), http.StatusUnauthorized)
+			return
+		}
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
