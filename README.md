@@ -27,5 +27,5 @@ docker compose up --build
 ## Acknowledgements
 
 This project was bootstrapped with [Create Vite](https://github.com/vitejs/vite/tree/main/packages/create-vite).
-This project utilised AI (in vscode) for its stylings
-This project utilised ChatGPT in identifying weaknesses in the code logic.
+This project utilised AI (in vscode) for all of its stylings 
+This project utilised ChatGPT in identifying weaknesses in the code
