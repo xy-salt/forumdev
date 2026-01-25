@@ -8,7 +8,6 @@ interface JwtPayload {
 
 export function getValidUserID(): number | null {
     const { token, logout } = useAuth();
-    // const token = localStorage.getItem("token");
     if (!token) {
         return null;
     }

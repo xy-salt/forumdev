@@ -120,42 +120,6 @@
     border-color: rgba(255, 255, 255, 0.5);
 }
 
-/* .profile-dropdown {
-    position: absolute;
-    top: 100%;
-    right: 0;
-    background-color: white;
-    border: 1px solid #e0e6f0;
-    border-radius: 6px;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
-    min-width: 150px;
-    margin-top: 8px;
-    overflow: hidden;
-    z-index: 1000;
-}
-
-.profile-dropdown button {
-    width: 100%;
-    padding: 12px 16px;
-    text-align: left;
-    border: none;
-    background: none;
-    color: #0a1428;
-    font-size: 14px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: background-color 0.2s ease;
-}
-
-.profile-dropdown button:hover {
-    background-color: #f0f3f7;
-    color: #0052cc;
-}
-
-.profile-dropdown button:last-child {
-    border-top: 1px solid #e0e6f0;
-} */
-
 /* Modal Actions */
 .modal-actions {
     display: flex;

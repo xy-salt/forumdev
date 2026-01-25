@@ -1,4 +1,3 @@
-
 import BasicTopicList from '../../components/Topic/BasicTopicList';
 import CreateTopicButton from '../../components/Topic/CreateTopic';
 import "../../components/Post/post-topic.css";
