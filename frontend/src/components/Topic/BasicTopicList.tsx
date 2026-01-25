@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import "../Post/post-topic.css";
 
 const BasicTopicList: React.FC = () => {
     interface Topic {
@@ -27,23 +28,33 @@ const BasicTopicList: React.FC = () => {
 
     if (topics == null) {
         return (
-            <div>
-                <h4>Forum has no topics</h4>
+            <div className="empty-state">
+                <h3 className="empty-state-title">No Topics Yet</h3>
+                <p className="empty-state-message">The forum hasn't any topics yet. Be the first to create one!</p>
             </div>
         );
     }
 
 
     return (
-            <div>
-                <ul>
-                    {topics.map(t => (
-                        <li key={t.topic_id}>
-                            <Link to={`/users/${t.user_id}`}>{t.username}</Link>
-                            <Link to={`/topics/${t.topic_id}`}>{t.topic_name}</Link>
-                        </li>
-                    ))}
-                </ul>
+            <div className='container'>
+                {topics.map(t => (
+                    <div key={t.topic_id} className='card'>
+                        
+                        <div className='top-right'> 
+                            <Link to={`/users/${t.user_id}`}>
+                                {t.username}
+                            </Link>
+                        </div>
+
+                        <div className='main'>
+                            <Link to={`/topics/${t.topic_id}`}>
+                                {t.topic_name}
+                            </Link>
+                        </div>
+
+                    </div>
+                ))}
             </div>
         );
 }

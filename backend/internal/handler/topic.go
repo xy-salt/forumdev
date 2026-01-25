@@ -96,7 +96,10 @@ func (h *TopicHandler) CreateTopic(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, fmt.Sprintf("topic name %s already exists", topicReq.Name), http.StatusConflict)
 			return
 		}
-
+		if errors.As(err, &mysqlErr) && mysqlErr.Number == 1406 {
+			http.Error(w, "topic name too long", http.StatusBadRequest)
+			return
+		}
 		log.Println("failed to create topic", err)
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return

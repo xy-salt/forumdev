@@ -1,19 +1,10 @@
 import BasicPostList from "../../components/Post/BasicPostList"
-import {TopicListButton, HomeButton, LoginButton, RegisterButton, UserListButton, LogOutButton } from '../../components/utils/Buttons'
+import "../../components/Post/post-topic.css"
 
 const Home: React.FC = () => {
     return (
         <div>
-            <h3>
-                {"Welcome to Forumdev"}
-            </h3>
-            <br />
-            <HomeButton />
-            <TopicListButton />
-            <LoginButton />
-            <RegisterButton />
-            <LogOutButton />
-            <UserListButton />
+            <h2 style={{margin: '0 0 24px 0', fontSize: '28px', fontWeight: '700', color: '#1c1e21'}}>Recent Posts</h2>
             <BasicPostList />
         </div>
     );

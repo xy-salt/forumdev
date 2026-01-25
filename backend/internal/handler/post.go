@@ -11,6 +11,7 @@ import (
 	"strings"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/go-sql-driver/mysql"
 	"github.com/xy-salt/forumdev/backend/internal/auth"
 	"github.com/xy-salt/forumdev/backend/internal/model"
 )
@@ -127,6 +128,12 @@ func (h *PostHandler) CreatePost(w http.ResponseWriter, r *http.Request) {
 
 	err = h.Repo.InsertPost(post)
 	if err != nil {
+		var mysqlErr *mysql.MySQLError
+		if errors.As(err, &mysqlErr) && mysqlErr.Number == 1406 {
+			http.Error(w, "post title too long", http.StatusConflict)
+			return
+		}
+
 		log.Println("failed to create post", err)
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
@@ -260,6 +267,12 @@ func (h *PostHandler) UpdatePost(w http.ResponseWriter, r *http.Request) {
 		log.Println("failed to update post", err)
 		if err.Error() == "unauthorized" {
 			http.Error(w, err.Error(), http.StatusUnauthorized)
+			return
+		}
+		var mysqlErr *mysql.MySQLError
+		if errors.As(err, &mysqlErr) && mysqlErr.Number == 1406 {
+			http.Error(w, "post title too long", http.StatusConflict)
+			return
 		}
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return

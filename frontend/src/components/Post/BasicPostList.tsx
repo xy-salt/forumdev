@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import "./post-topic.css";
 
 const BasicPostList: React.FC = () => {
     interface Post {
@@ -26,21 +27,36 @@ const BasicPostList: React.FC = () => {
 
     return posts == null 
         ?(
-            <div>
-                <h4>{"Forum is currently empty"}</h4>
+            <div className="empty-state">
+                <h3 className="empty-state-title">Forum is Empty</h3>
+                <p className="empty-state-message">No posts yet. Start the discussion!</p>
             </div>
         )
         :(
-            <div>
-                <ul>
-                    {posts.map(p => (
-                        <li key={p.post_id}>
-                            <Link to={`/users/${p.creator_id}`}>{p.username}</Link>
-                            <Link to={`/topics/${p.topic_id}`}>{p.topic_name}</Link>
-                            <Link to={`/topics/${p.topic_id}/posts/${p.post_id}`}>{p.title}</Link>
-                        </li>
-                    ))}
-                </ul>
+            <div className='container'>
+                {posts.map(p => (
+                    <div key={p.post_id} className='card post-item'>
+
+                        <div className='top-left'>
+                            <Link to={`/topics/${p.topic_id}`}>
+                                topics/{p.topic_name}
+                            </Link>
+                        </div>
+
+                        <div className='top-right'>
+                            <Link to={`/users/${p.creator_id}`}>
+                                {p.username}
+                            </Link>
+                        </div>
+
+                        <div className='main'>
+                            <Link to={`/topics/${p.topic_id}/posts/${p.post_id}`}>
+                                {p.title}
+                            </Link>
+                        </div>
+                        
+                    </div>
+                ))}
             </div>
         );
 }

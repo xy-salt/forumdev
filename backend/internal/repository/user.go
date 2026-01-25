@@ -138,13 +138,18 @@ func (repo *UserRepo) GetUserByName(username string) (*model.User, error) {
 func (repo *UserRepo) UpdateUser(user *model.User) error {
 	_, err := repo.db.Exec(`
 		UPDATE Users
-		SET username = ?, 
+		SET username = 
+			CASE 
+				WHEN ? = "" THEN username
+				ELSE ?
+			END,
 			password = 
-				CASE
-					WHEN ? = "" THEN password
-					ELSE ?
-				END
+			CASE
+				WHEN ? = "" THEN password
+				ELSE ?
+			END
 		WHERE user_id = ?`,
+		user.Username,
 		user.Username,
 		user.Password,
 		user.Password,

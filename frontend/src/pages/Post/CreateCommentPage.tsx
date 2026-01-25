@@ -1,10 +1,10 @@
-import CreateComment from "../../components/Post/CreateComment";
+// import CreateComment from "../../components/Post/CreateComment";
 
-const CreateCommentPage: React.FC = () => {
+// const CreateCommentPage: React.FC = () => {
 
-    return (
-        <CreateComment />
-    )
-}
+//     return (
+//         <CreateComment />
+//     )
+// }
 
-export default CreateCommentPage;
+// export default CreateCommentPage;

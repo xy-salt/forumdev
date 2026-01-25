@@ -1,18 +1,12 @@
 import BasicUserList from '../../components/User/BasicUserList';
-import {TopicListButton, HomeButton, LoginButton, RegisterButton, UserListButton } from '../../components/utils/Buttons'
+import "../../components/User/user-profile.css";
 
 const Users: React.FC = () => {
     return (
         <div>
-            <h3>
-                {"All users"}
-            </h3>
-            <br />
-            <HomeButton />
-            <TopicListButton />
-            <LoginButton />
-            <RegisterButton />
-            <UserListButton />
+            <h2 style={{margin: '0 0 24px 0', fontSize: '28px', fontWeight: '700', color: '#1c1e21'}}>
+                Community Members
+            </h2>
             <BasicUserList />
         </div>
     );

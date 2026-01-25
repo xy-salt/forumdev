@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import "./user-profile.css";
 
 const BasicUserList: React.FC = () => {
     interface User {
@@ -25,19 +26,22 @@ const BasicUserList: React.FC = () => {
 
     return users == null 
         ?(
-            <div>
-                <h4>{"Forum has no users"}</h4>
+            <div className="empty-state">
+                <h3 className="empty-state-title">No Users</h3>
+                <p className="empty-state-message">Be the first to join the forum!</p>
             </div>
         )
         :(
-            <div>
-                <ul>
-                    {users.map(u => (
-                        <li key={u.user_id}>
-                            <Link to={`/users/${u.user_id}`}>{u.username}</Link>
-                        </li>
-                    ))}
-                </ul>
+            <div className='user-list-container'>
+                {users.map(u => (
+                    <div key={u.user_id} className='user-item'>
+                        <div className='user-header'>
+                            <Link to={`/users/${u.user_id}`} className='user-name'>
+                                {u.username}
+                            </Link>
+                        </div>
+                    </div>
+                ))}
             </div>
         );
 }

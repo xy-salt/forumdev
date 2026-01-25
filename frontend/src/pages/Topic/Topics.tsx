@@ -1,21 +1,15 @@
 
 import BasicTopicList from '../../components/Topic/BasicTopicList';
-import {TopicListButton, HomeButton, LoginButton, RegisterButton, UserListButton } from '../../components/utils/Buttons'
 import CreateTopicButton from '../../components/Topic/CreateTopic';
+import "../../components/Post/post-topic.css";
 
 const Topics: React.FC = () => {
     return (
         <div>
-            <h3>
-                {"Explore a wide range of different topics"}
-            </h3>
-            <br />
-            <HomeButton />
-            <TopicListButton />
-            <LoginButton />
-            <RegisterButton />
-            <UserListButton />
-            <CreateTopicButton />
+            <div style={{marginBottom: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px'}}>
+                <h2 style={{margin: '0', fontSize: '28px', fontWeight: '700', color: '#1c1e21'}}>Topics</h2>
+                <CreateTopicButton />
+            </div>
             <BasicTopicList />
         </div>
     );

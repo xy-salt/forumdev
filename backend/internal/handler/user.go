@@ -253,15 +253,18 @@ func (h *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = checkUsername(userChangeReq.Username)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
+	user := &model.User{
+		UserID: authUserID,
 	}
 
-	user := &model.User{
-		UserID:   authUserID,
-		Username: userChangeReq.Username,
+	if userChangeReq.Username != "" {
+		err = checkUsername(userChangeReq.Username)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		user.Username = userChangeReq.Username
 	}
 
 	if userChangeReq.Password != "" {

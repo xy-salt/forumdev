@@ -1,19 +1,18 @@
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { useAuth } from "../utils/Auth";
+import "./user-profile.css";
+import "../utils/buttons.css";
 
 const DeleteUser: React.FC = () => {
     const [error, setError] = useState<string>("");
+    const [showConfirm, setShowConfirm] = useState(false);
     const navigate = useNavigate();
     const { user_id } = useParams<{ user_id: string}>();
+    const { token, logout  } = useAuth();
 
-    const token = localStorage.getItem("token");
     if (!token) {
-        return (
-            <div>
-                <h5>Only User can delete their account</h5>
-                <h6>Login to verify your identity</h6>
-            </div>
-        )
+        return null;
     }
 
     const handleDelete = async () => {
@@ -29,9 +28,8 @@ const DeleteUser: React.FC = () => {
                 const text = await res.json();
                 throw new Error(text || "User deletion failed");
             }
-            alert("User Deleted");
             navigate(`/users`);
-            localStorage.removeItem("token");
+            logout();
         } catch (err: any) {
             console.error(err);
             setError(err.message || "failed to delete user");
@@ -39,11 +37,30 @@ const DeleteUser: React.FC = () => {
     }
 
     return (
-        <button onClick={handleDelete}>
-            Delete Account
-            {error && <p style={{ color: "red" }}>{error}</p>}
-        </button>
-    )
+        <>
+            <button className="action-button danger" onClick={() => setShowConfirm(true)}>
+                Delete Account
+            </button>
+            {error && <p className="form-error">{error}</p>}
+            
+            {showConfirm && (
+                <div className="modal-overlay" onClick={() => setShowConfirm(false)}>
+                    <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+                        <h3>Confirm Delete Account</h3>
+                        <p>Are you sure you want to delete your account? This action cannot be undone.</p>
+                        <div className="modal-actions">
+                            <button className="action-button danger" onClick={() => { handleDelete(); setShowConfirm(false); }}>
+                                Delete Account
+                            </button>
+                            <button className="action-button secondary" onClick={() => setShowConfirm(false)}>
+                                Cancel
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+        </>
+    );
 }
 
 export default DeleteUser;

@@ -1,5 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { useAuth } from "../utils/Auth";
+import "../Post/post-topic.css";
+import "../utils/buttons.css";
 
 interface UpdateTopicProp {
     onClose: () => void
@@ -20,6 +23,7 @@ const UpdateTopic: React.FC<UpdateTopicProp> = ({ onClose }) => {
     const [error, setError] = useState<string>("");
     const { topic_id } = useParams<{ topic_id: string }>();
     const navigate = useNavigate();
+    const { token } = useAuth();
 
     useEffect(() => {
         async function fetchTopic() {
@@ -42,31 +46,24 @@ const UpdateTopic: React.FC<UpdateTopicProp> = ({ onClose }) => {
         }
     }, [topic])
 
-    const token = localStorage.getItem("token");
     if (!token) {
-        return (
-            <div>
-                <h5>Only Topic Creator can update topic</h5>
-                <h6>Login to verify your identidy</h6>
-            </div>
-        )
+        return null;
     }
 
     if (!topic && !error) {
         return (
-            <div>
-                <h5>Loading...</h5>
+            <div className="empty-state">
+                <p>Loading...</p>
             </div>
-        )
+        );
     }
 
     if (error) {
         return (
-            <div>
-                <h5>Unable to update topic</h5>
-                {error && <p style={{ color: "red" }}>{error}</p>}
+            <div className="form-error">
+                <p>Unable to update topic: {error}</p>
             </div>
-        )
+        );
     }
 
     const handleUpdate = async (e: React.FormEvent) => {
@@ -87,7 +84,6 @@ const UpdateTopic: React.FC<UpdateTopicProp> = ({ onClose }) => {
                 const text = await res.text();
                 throw new Error(text || "topic update failed")
             }
-            alert("topic updated");
             onClose();
             navigate(`/topics/${topic_id}`);
         } catch (err: any) {
@@ -97,30 +93,44 @@ const UpdateTopic: React.FC<UpdateTopicProp> = ({ onClose }) => {
     }
 
     return (
-        <div>
+        <div className="form-section">
+            <h3 className="form-section-title">Edit Topic</h3>
             <form onSubmit={handleUpdate}>
-                <label>Update Topic</label>
-                <input 
-                    type="text"
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                />
-                {error && <p style={{ color: "red" }}>{error}</p>}
-                <button type="submit">Update topic</button>
+                <div className="form-group">
+                    <label htmlFor="topic-desc">Topic Description</label>
+                    <textarea 
+                        id="topic-desc"
+                        className="form-textarea"
+                        value={description}
+                        onChange={(e) => setDescription(e.target.value)}
+                    />
+                </div>
+                {error && <p className="form-error">{error}</p>}
+                <div className="form-actions">
+                    <button className="action-button success" type="submit">Update Topic</button>
+                    <button className="action-button secondary" type="button" onClick={onClose}>Cancel</button>
+                </div>
             </form>
         </div>
-    )
+    );
 }
 
 const UpdateTopicButton: React.FC = () => {
     const [show, setShow] = useState(false);
     return (
         <>
-            <button onClick={() => setShow(true)}>
-                Update Topic
+            <button className="action-button secondary" onClick={() => setShow(true)}>
+                Edit Topic
             </button>
 
-            {show && <UpdateTopic onClose={() => setShow(false)} />}
+            {show && (
+                <div className="modal-overlay show" onClick={() => setShow(false)}>
+                    <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+                        <button className="modal-close" onClick={() => setShow(false)}>×</button>
+                        <UpdateTopic onClose={() => setShow(false)} />
+                    </div>
+                </div>
+            )}
         </>
     );
 }

@@ -2,7 +2,7 @@
 import TopicPage from "./pages/Topic/TopicPage";
 import TopicPostsView from "./pages/Topic/TopicPostsView";
 import PostPage from "./pages/Post/PostPage";
-import CreateCommentPage from "./pages/Post/CreateCommentPage";
+// import CreateCommentPage from "./pages/Post/CreateCommentPage";
 import "./App.css";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
@@ -13,11 +13,15 @@ import RegisterView from "./pages/User/RegisterView";
 import Users from "./pages/User/Users";
 import UserProfile from "./pages/User/UserProfile";
 import Topics from "./pages/Topic/Topics";
+import Layout from "./pages/Layout";
 
 const theme = createTheme({
     palette: {
         primary: blue,
         secondary: orange,
+    },
+    typography: {
+        fontFamily: "Poppins, sans-serif",
     },
 });
 
@@ -27,16 +31,18 @@ const App: React.FC = () => {
             <ThemeProvider theme={theme}>
                 <BrowserRouter>
                     <Routes>
-                        <Route path="/register" element={<RegisterView />} />
-                        <Route path="/login" element={<LoginView />} />
-                        <Route path="/" element={<Home />} />
-                        <Route path="/users" element={<Users />} />
-                        <Route path="/users/:user_id" element={<UserProfile />} />
-                        <Route path="/topics" element={<Topics />}/>
-                        <Route path="/topics/:topic_id" element={<TopicPage />} />
-                        <Route path="/topics/:topic_id/posts" element={<TopicPostsView />} />
-                        <Route path="/topics/:topic_id/posts/:post_id" element={<PostPage />} />
-                        <Route path="/topics/:topic_id/posts/:post_id/comments" element={<CreateCommentPage />} />
+                        <Route element={<Layout />} >
+                            <Route path="/register" element={<RegisterView />} />
+                            <Route path="/login" element={<LoginView />} />
+                            <Route path="/" element={<Home />} />
+                            <Route path="/users" element={<Users />} />
+                            <Route path="/users/:user_id" element={<UserProfile />} />
+                            <Route path="/topics" element={<Topics />}/>
+                            <Route path="/topics/:topic_id" element={<TopicPage />} />
+                            <Route path="/topics/:topic_id/posts" element={<TopicPostsView />} />
+                            <Route path="/topics/:topic_id/posts/:post_id" element={<PostPage />} />
+                            {/* <Route path="/topics/:topic_id/posts/:post_id/comments" element={<CreateCommentPage />} /> */}
+                        </Route>
                     </Routes>
                 </BrowserRouter>
             </ThemeProvider>

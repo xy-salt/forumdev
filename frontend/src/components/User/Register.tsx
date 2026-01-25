@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import "./auth-forms.css";
 
 const Register: React.FC = () => {
     const [username, setUsername] = useState<string>("");
@@ -33,25 +34,33 @@ const Register: React.FC = () => {
     };
 
     return (
-        <div>
-            <form onSubmit={handleSubmit}>
-                <label>Username:</label>
-                <input
-                    type="text"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                />
+        <div className="auth-container">
+            <h1 className="auth-title">Join the Forum</h1>
+            <p className="auth-subtitle">Create a new account to get started</p>
+            <form className="auth-form" onSubmit={handleSubmit}>
+                <div className="form-group">
+                    <label htmlFor="username">Username</label>
+                    <input 
+                        id="username"
+                        type="text"
+                        value={username}
+                        onChange={(e) => setUsername(e.target.value)}
+                        placeholder="Choose a username"
+                    />
+                </div>
+                <div className="form-group">
+                    <label htmlFor="password">Password</label>
+                    <input 
+                        id="password"
+                        type="password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        placeholder="Choose a password"
+                    />
+                </div>
+                {error && <p className="form-error">{error}</p>}
 
-                <label>Password:</label>
-                <input
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                />
-
-                {error && <p style={{ color: "red" }}>{error}</p>}
-
-                <button type="submit">
+                <button className="form-submit" type="submit">
                     Create Account
                 </button>
             </form>
