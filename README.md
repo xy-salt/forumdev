@@ -13,14 +13,15 @@ The application is only tried and tested on local machines and is yet to be depl
 2. [Fork](https://docs.github.com/en/get-started/quickstart/fork-a-repo#forking-a-repository) this repo.
 3. [Clone](https://docs.github.com/en/get-started/quickstart/fork-a-repo#cloning-your-forked-repository) **your** forked repo.
 4. Open your terminal and navigate to the directory containing your cloned project.
-5. Run the app in development mode by entering this command:
+5. Create .env files under the frontend directory and in the main dicectory with the provided .env.example
+6. Run the app in development mode by entering this command:
 
 ```bash
 docker compose up --build
 ```
 
-6. Open [http://localhost:5173](http://localhost:5173) to view it in the browser.
-7. You should see a page like this.
+7. Open [http://localhost:5173](http://localhost:5173) to view it in the browser.
+8. You should see a page like this.
    ![Basic Page](frontend/public/Homepage.png)
    
 ## Acknowledgements
